@@ -27,6 +27,7 @@ class S3Storage extends Component{
     public $public_url;
     public $private_endpoint_url;
     public $private_url;
+    public $expired = "+1 minutes";
 
     private $s3Client;
 
@@ -109,7 +110,7 @@ class S3Storage extends Component{
                     'Bucket' => $this->bucket,
                     'Key' => $file
                 ]);
-                $request = $this->s3Client->createPresignedRequest($cmd, '+60 minutes');
+                $request = $this->s3Client->createPresignedRequest($cmd, $this->expired);
                 $presignUrl = (string)$request->getUri();
                 
                 if (isset($this->private_endpoint_url) && isset($this->private_url)) {
