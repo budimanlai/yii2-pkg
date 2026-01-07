@@ -1,0 +1,13 @@
+{
+    "name": "budimanlai/yii2-pkg",
+    "type": "yii2-pkg",
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "budimanlai\\yii2pkg\\": "src/"
+        }
+    },
+    "require": {
+        "yiisoft/yii2": "~2.0.0"
+    }
+}
