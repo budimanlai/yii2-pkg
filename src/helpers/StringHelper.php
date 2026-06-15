@@ -6,25 +6,26 @@ use yii\helpers\StringHelper as YiiStringHelper;
 
 class StringHelper extends YiiStringHelper {
 
-    /*
-     * Normalize string remove symbol and space
-     * 
+    /**
+     * Normalize string by removing all non-alphanumeric characters and spaces.
+     *
      * @param string $string The string to normalize
-     * @return string The normalized string
+     * @return string The normalized string containing only A-Z, a-z, and 0-9
      */
-    public static function normalizeString($string) {
-        return preg_replace('/[^A-Za-z0-9]/', '', $string);
+    public static function normalizeString(string $string): string {
+        return (string) preg_replace('/[^A-Za-z0-9]/', '', $string);
     }
 
-    /*
-     * SEO string replace string to dash and remove symbol
-     * 
-     * @param string $string The string to SEO
-     * @return string The SEO string
+    /**
+     * Convert a string to SEO-friendly format by lowercasing and removing
+     * all non-alphanumeric characters (symbols, spaces, dashes, etc.).
+     *
+     * @param string $string The string to convert
+     * @return string The SEO-friendly string, or empty string if input is empty
      */
-    public static function seoString($string) {
+    public static function seoString(string $string): string {
         if (!empty($string)) {
-            return preg_replace('/[^A-Za-z0-9]/', '', strtolower($string));
+            return (string) preg_replace('/[^A-Za-z0-9]/', '', strtolower($string));
         }
         return '';
     }

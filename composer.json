@@ -1,13 +1,29 @@
 {
     "name": "budimanlai/yii2-pkg",
-    "type": "yii2-pkg",
+    "type": "yii2-extension",
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "budimanlai\\yii2pkg\\": "src/"
         }
     },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
     "require": {
-        "yiisoft/yii2": "~2.0.0"
+        "yiisoft/yii2": "~2.0.0",
+        "yiisoft/yii2-httpclient": "^2.0@dev",
+        "aws/aws-sdk-php": "^3.384"
+    },
+    "require-dev": {
+        "yiisoft/yii2-composer": "*"
+    },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true
+        }
     }
 }

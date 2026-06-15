@@ -2,7 +2,7 @@
 /*
  * @author Budiman Lai <budiman.lai@gmail.com>
  * @created_at 2025-12-25 13:34:26
- * 
+ *
  * @package budimanlai\yii2pkg\storage
  * @version 1.0.0
  */
@@ -10,82 +10,70 @@ namespace budimanlai\yii2pkg\storage;
 
 use yii\base\Component;
 
-/*
- * LocalStorage is a storage driver upload file to local file system
- */
 class LocalStorage extends Component {
-    
-    /*
-     * @var string The directory where files will be uploaded
-     */
-    public $upload_directory;
+    public string $upload_directory;
+    public string $baseUrl;
 
-    /*
-     * @var string The base URL of the files
-     */
-    public $baseUrl;
-
-    public function init() {
+    public function init(): void {
         parent::init();
     }
 
-    /*
-     * Upload file to local file system
-     * 
-     * @param string $source The source file path
-     * @param string $destination The destination path where files will be uploaded
+    /**
+     * Upload a file to the local filesystem.
+     * Automatically creates the destination directory if it does not exist.
+     *
+     * @param string $source      Absolute path to the source file
+     * @param string $destination Relative destination path within `$upload_directory`
      */
-    public function upload($source, $destination) {
+    public function upload(string $source, string $destination): void {
         $destPath = $this->upload_directory . '/' . $destination;
-
-        // ambil folder saja
         $folder = pathinfo($destPath, PATHINFO_DIRNAME);
 
-        // cek folder apakah ada
         if (!file_exists($folder)) {
             mkdir($folder, 0777, true);
         }
 
-        // copy file
         copy($source, $destPath);
     }
 
-    /*
-     * Get the URL of the file
-     * 
-     * @param string $file The file path
-     * @return string The URL of the file
+    /**
+     * Get the public URL of a stored file by appending the file path to `$baseUrl`.
+     *
+     * @param string $file Relative file path within the storage
+     * @return string The full public URL of the file
      */
-    public function getPublicURL($file) {
+    public function getPublicURL(string $file): string {
         return $this->baseUrl . '/' . $file;
     }
 
-    /*
-     * Get the private URL of the file
-     * 
-     * @param string $file The file path
-     * @return string The private URL of the file
+    /**
+     * Get the private URL of a stored file.
+     * For local storage, this is identical to getPublicURL.
+     *
+     * @param string $file Relative file path within the storage
+     * @return string The full URL of the file
      */
-    public function getPrivateURL($file) {
+    public function getPrivateURL(string $file): string {
         return $this->getPublicURL($file);
     }
 
-    /*
-     * Check if the file exists
-     * 
-     * @param string $file The file path
+    /**
+     * Check whether a file exists in the local storage directory.
+     *
+     * @param string $file Relative file path within the storage
      * @return bool True if the file exists, false otherwise
      */
-    public function isExists($file) {
+    public function isExists(string $file): bool {
         return file_exists($this->upload_directory . '/' . $file);
     }
 
-    /*
-     * Delete the file
-     * 
-     * @param string $file The file path
+    /**
+     * Delete a file from the local storage directory.
+     * Does nothing if the file does not exist.
+     *
+     * @param string $file Relative file path within the storage
      */
-    public function delete($file) {
+    public function delete(string $file): void {
         if (file_exists($this->upload_directory . '/' . $file)) {
             unlink($this->upload_directory . '/' . $file);
         }
