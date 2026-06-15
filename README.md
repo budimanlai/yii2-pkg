@@ -1,6 +1,6 @@
 # yii2-pkg
 
-Yii2 extension package berisi kumpulan helper, storage driver, dan base class yang dapat digunakan kembali di berbagai project Yii2.
+Yii2 extension package berisi kumpulan helper, storage driver, trait, dan base class yang dapat digunakan kembali di berbagai project Yii2.
 
 ## Requirement
 
@@ -19,7 +19,14 @@ composer require budimanlai/yii2-pkg
 
 | Class | Namespace | Deskripsi |
 |---|---|---|
-| [StringHelper](docs/helpers/StringHelper.md) | `budimanlai\yii2pkg\helpers` | Ekstensi dari `yii\helpers\StringHelper` dengan tambahan method normalisasi string |
+| [StringHelper](docs/helpers/StringHelper.md) | `budimanlai\yii2pkg\helpers` | Ekstensi dari `yii\helpers\StringHelper` dengan tambahan method normalisasi string, phone number, dan utility |
+| [QueryHelper](docs/helpers/QueryHelper.md) | `budimanlai\yii2pkg\helpers` | Helper untuk operasi database raw SQL (query, insert, update, delete) |
+
+### Traits
+
+| Trait | Namespace | Deskripsi |
+|---|---|---|
+| [BaseController](docs/traits/BaseController.md) | `budimanlai\yii2pkg\traits` | Trait untuk controller yang menyediakan shortcut query database dan response helper |
 
 ### Storage
 

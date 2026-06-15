@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+## v1.1.0 — 2026-06-15
+
+### Added
+- `QueryHelper` — helper untuk operasi database raw SQL
+  - `queryOne`, `queryAll`, `queryScalar`, `queryExecute`
+  - `queryInsert`, `queryUpdate`, `queryBatchInsert`
+  - `queryForUpdate` — select dengan row locking (`FOR UPDATE`)
+  - `isExists` — cek keberadaan record
+  - `getErrorModel` — ekstrak pesan error dari Yii2 model
+- `BaseController` *(trait)* — shortcut query database dan response helper untuk controller
+  - Wrapper method untuk semua operasi `QueryHelper`
+  - `asError` — throw `BadRequestHttpException` dengan pesan kustom
+  - `asErrorModel` — throw `BadRequestHttpException` dari error validasi model
+  - `requiredField` — validasi keberadaan field wajib di request body
+- `StringHelper` — tambahan method baru:
+  - `normalizePhoneNumber` — normalisasi nomor telepon ke format `62xxx`
+  - `generateTrxID` — generate ID transaksi unik berbasis timestamp
+  - `getErrorModel` — ekstrak pesan error dari Yii2 model
+  - `deleteFile` — hapus file dari server berdasarkan path relatif
+  - `generateRandomString` — generate string acak alphanumeric
+
 ## v1.0.0 — 2025-12-25
 
 Initial release.
