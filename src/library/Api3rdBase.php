@@ -1,5 +1,5 @@
 <?php
-namespace budimanlai\yii2pkg\models;
+namespace budimanlai\yii2pkg\library;
 
 use Yii;
 use yii\httpclient\Client;

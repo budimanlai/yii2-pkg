@@ -2,6 +2,7 @@
     "name": "budimanlai/yii2-pkg",
     "description": "Yii2 extension package berisi kumpulan helper, storage driver, trait, dan base class yang dapat digunakan kembali di berbagai project Yii2.",
     "type": "yii2-extension",
+    "version": "1.1.0",
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
