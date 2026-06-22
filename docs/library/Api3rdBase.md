@@ -1,7 +1,7 @@
 # Api3rdBase
 
-**Namespace:** `budimanlai\yii2pkg\models`  
-**File:** `src/models/Api3rdBase.php`  
+**Namespace:** `budimanlai\yii2pkg\library`  
+**File:** `src/library/Api3rdBase.php`  
 **Requires:** `yiisoft/yii2-httpclient ^2.0`
 
 Base class untuk integrasi dengan third-party REST API. Class ini menyediakan method HTTP standar (GET, POST, PATCH, DELETE) sekaligus mencatat setiap request dan response ke tabel database `api_3rd_log` untuk keperluan audit dan debugging.
@@ -9,7 +9,7 @@ Base class untuk integrasi dengan third-party REST API. Class ini menyediakan me
 Gunakan dengan cara meng-extend class ini untuk setiap integrasi API:
 
 ```php
-use budimanlai\yii2pkg\models\Api3rdBase;
+use budimanlai\yii2pkg\library\Api3rdBase;
 
 class PaymentApi extends Api3rdBase {
     public string $baseUrl = 'https://api.payment-gateway.com';

@@ -1,6 +1,14 @@
 # Release Notes
 
-## [Unreleased]
+## v1.1.1 — 2026-06-23
+
+### Changed
+- Namespace `budimanlai\yii2pkg\models` diubah menjadi `budimanlai\yii2pkg\library` (**breaking change**)
+  - Folder `src/models/` diubah menjadi `src/library/`
+  - Folder `docs/models/` diubah menjadi `docs/library/`
+  - Update semua referensi namespace di class `Api3rdBase`
+
+> **Migration:** Ganti semua `use budimanlai\yii2pkg\models\Api3rdBase;` menjadi `use budimanlai\yii2pkg\library\Api3rdBase;`
 
 ## v1.1.0 — 2026-06-15
 

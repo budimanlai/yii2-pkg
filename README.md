@@ -36,11 +36,11 @@ composer require budimanlai/yii2-pkg
 | [LocalStorage](docs/storage/LocalStorage.md) | `budimanlai\yii2pkg\storage` | Driver storage untuk local filesystem |
 | [S3Storage](docs/storage/S3Storage.md) | `budimanlai\yii2pkg\storage` | Driver storage untuk AWS S3 / S3-compatible object storage |
 
-### Models
+### Library
 
 | Class | Namespace | Deskripsi |
 |---|---|---|
-| [Api3rdBase](docs/models/Api3rdBase.md) | `budimanlai\yii2pkg\models` | Base class untuk integrasi dengan third-party REST API |
+| [Api3rdBase](docs/library/Api3rdBase.md) | `budimanlai\yii2pkg\library` | Base class untuk integrasi dengan third-party REST API |
 
 ## Lisensi
 

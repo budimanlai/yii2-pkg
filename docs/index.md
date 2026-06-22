@@ -8,6 +8,7 @@ Yii2 extension package berisi kumpulan helper, storage driver, dan base class ya
 | Class | Namespace | Deskripsi |
 |---|---|---|
 | [StringHelper](helpers/StringHelper.md) | `budimanlai\yii2pkg\helpers` | Ekstensi dari `yii\helpers\StringHelper` dengan tambahan method normalisasi string |
+| [QueryHelper](helpers/QueryHelper.md) | `budimanlai\yii2pkg\helpers` | Helper untuk operasi database raw SQL (query, insert, update, delete) |
 
 ### Storage
 | Class | Namespace | Deskripsi |
@@ -16,10 +17,10 @@ Yii2 extension package berisi kumpulan helper, storage driver, dan base class ya
 | [LocalStorage](storage/LocalStorage.md) | `budimanlai\yii2pkg\storage` | Driver storage untuk local filesystem |
 | [S3Storage](storage/S3Storage.md) | `budimanlai\yii2pkg\storage` | Driver storage untuk AWS S3 / S3-compatible object storage |
 
-### Models
+### Library
 | Class | Namespace | Deskripsi |
 |---|---|---|
-| [Api3rdBase](models/Api3rdBase.md) | `budimanlai\yii2pkg\models` | Base class untuk integrasi dengan third-party REST API |
+| [Api3rdBase](library/Api3rdBase.md) | `budimanlai\yii2pkg\library` | Base class untuk integrasi dengan third-party REST API |
 
 ## Instalasi
 
