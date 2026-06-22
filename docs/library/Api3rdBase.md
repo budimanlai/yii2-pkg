@@ -4,7 +4,7 @@
 **File:** `src/library/Api3rdBase.php`  
 **Requires:** `yiisoft/yii2-httpclient ^2.0`
 
-Base class untuk integrasi dengan third-party REST API. Class ini menyediakan method HTTP standar (GET, POST, PATCH, DELETE) sekaligus mencatat setiap request dan response ke tabel database `api_3rd_log` untuk keperluan audit dan debugging.
+Base class untuk integrasi dengan third-party REST API. Class ini menyediakan method HTTP standar (GET, POST, PUT, PATCH, DELETE) sekaligus mencatat setiap request dan response ke tabel database `api_3rd_log` untuk keperluan audit dan debugging.
 
 Gunakan dengan cara meng-extend class ini untuk setiap integrasi API:
 
@@ -185,6 +185,36 @@ Mengirim PATCH request dengan body JSON ke API. Biasanya digunakan untuk update 
 
 ```php
 $result = $api->patch('/orders/123', ['status' => 'shipped']);
+```
+
+---
+
+### `put()`
+
+```php
+public function put(string $endpoint, array $params = []): mixed
+```
+
+Mengirim PUT request dengan body JSON ke API. Biasanya digunakan untuk mengganti seluruh data resource (full update/replace).
+
+**Parameter**
+
+| Nama | Tipe | Default | Deskripsi |
+|---|---|---|---|
+| `$endpoint` | `string` | — | Path endpoint |
+| `$params` | `array` | `[]` | Request body sebagai associative array |
+
+**Return:** `mixed` — Data response yang sudah di-decode.  
+**Throws:** `\Exception` jika request gagal atau API mengembalikan status non-2xx.
+
+**Contoh**
+
+```php
+$result = $api->put('/orders/123', [
+    'product_id' => 5,
+    'quantity'   => 3,
+    'status'     => 'pending',
+]);
 ```
 
 ---

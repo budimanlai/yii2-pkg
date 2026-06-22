@@ -9,21 +9,50 @@ use yii\base\Exception;
 use yii\helpers\Json;
 use yii\helpers\ArrayHelper;
 
+/**
+ * Base class for integrating with third-party REST APIs.
+ *
+ * Provides standard HTTP methods (GET, POST, PUT, PATCH, DELETE) and automatically
+ * logs every request and response to the `api_3rd_log` table for auditing and debugging.
+ * Extend this class for each API integration and override {@see getHeaders()} to supply
+ * authentication headers.
+ *
+ * @package budimanlai\yii2pkg\library
+ * @author  Budiman Lai <budiman.lai@gmail.com>
+ */
 class Api3rdBase {
+
+    /** @var string Base URL of the API (e.g. 'https://api.example.com') */
     public string $baseUrl;
+
+    /** @var string API key used for authentication */
     public string $api_key;
+
+    /** @var string Category label recorded in the log (e.g. 'payment', 'shipping') */
     public string $category;
+
+    /** @var string Path prefix prepended to every endpoint */
     public string $path = '/';
+
+    /** @var int|string ID of the user or entity associated with the request, recorded in the log */
     public int|string $user_id;
 
+    /** @var array Request body or query params sent in the last request */
     private array $_request = [];
+
+    /** @var array HTTP headers sent in the last request */
     private array $_headers = [];
+
+    /** @var mixed Decoded response data from the last request */
     private mixed $_response = null;
+
+    /** @var string Full URL used in the last request */
     private string $_targetUrl = '';
 
     /**
-     * Return the default HTTP headers to be sent with every request.
-     * Override this method in subclasses to add custom headers (e.g. Authorization).
+     * Return the default HTTP headers sent with every request.
+     *
+     * Override in subclasses to add custom headers such as `Authorization`.
      *
      * @return array Associative array of header name => value
      */
@@ -35,10 +64,11 @@ class Api3rdBase {
 
     /**
      * Extract a human-readable error message from an API response body.
-     * Looks for 'message' at the root level first, then under 'meta.message'.
      *
-     * @param array $data The decoded response body
-     * @return string The error message
+     * Looks for `message` at the root level first, then under `meta.message`.
+     *
+     * @param  array  $data Decoded response body
+     * @return string Error message
      */
     public function parseError(array $data): string {
         if (isset($data['message'])) {
@@ -53,11 +83,13 @@ class Api3rdBase {
     }
 
     /**
-     * Send a PATCH request to the API.
+     * Send a PATCH request with a JSON body to the API.
      *
-     * @param string $endpoint The API endpoint path (appended to `$baseUrl . $path`)
-     * @param array  $params   Request body as an associative array
-     * @return mixed Decoded response data on success
+     * Use for partial resource updates. For full replacement use {@see put()}.
+     *
+     * @param  string $endpoint API endpoint path (appended to `$baseUrl . $path`)
+     * @param  array  $params   Request body as an associative array
+     * @return mixed  Decoded response data on success
      * @throws \Exception If the request fails or the API returns a non-2xx status
      */
     public function patch(string $endpoint, array $params = []): mixed {
@@ -95,11 +127,55 @@ class Api3rdBase {
     }
 
     /**
+     * Send a PUT request with a JSON body to the API.
+     *
+     * Use for full resource replacement. For partial updates use {@see patch()}.
+     *
+     * @param  string $endpoint API endpoint path (appended to `$baseUrl . $path`)
+     * @param  array  $params   Request body as an associative array
+     * @return mixed  Decoded response data on success
+     * @throws \Exception If the request fails or the API returns a non-2xx status
+     */
+    public function put(string $endpoint, array $params = []): mixed {
+        $this->_headers = $this->getHeaders();
+        $this->_request = $params;
+        $this->_targetUrl = $this->baseUrl . $this->path . $endpoint;
+
+        $start_time = microtime(true);
+        $log_id = $this->addLog($this->user_id, 'put');
+        try {
+            $client = new Client([
+                'transport' => 'yii\httpclient\CurlTransport',
+            ]);
+            $response = $client->createRequest()
+                ->setFormat(Client::FORMAT_JSON)
+                ->setMethod('PUT')
+                ->addHeaders($this->_headers)
+                ->setData($this->_request)
+                ->setUrl($this->_targetUrl)
+                ->send();
+
+            $latency = microtime(true) - $start_time;
+            $this->_response = $response->data;
+            $this->addResponse($log_id, $response->data, $latency);
+
+            if ($response->isOk) {
+                return $response->data;
+            } else {
+                throw new \Exception($this->parseError($response->data));
+            }
+        } catch (Exception | InvalidArgumentException | BadRequestHttpException $e) {
+            $this->addException($log_id, $e->getMessage(), microtime(true) - $start_time);
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    /**
      * Send a DELETE request to the API.
      *
-     * @param string $endpoint The API endpoint path (appended to `$baseUrl . $path`)
-     * @param array  $params   Request body as an associative array
-     * @return mixed Decoded response data on success
+     * @param  string $endpoint API endpoint path (appended to `$baseUrl . $path`)
+     * @param  array  $params   Request body as an associative array
+     * @return mixed  Decoded response data on success
      * @throws \Exception If the request fails or the API returns a non-2xx status
      */
     public function delete(string $endpoint, array $params = []): mixed {
@@ -139,9 +215,9 @@ class Api3rdBase {
     /**
      * Send a POST request with a JSON body to the API.
      *
-     * @param string $endpoint The API endpoint path (appended to `$baseUrl . $path`)
-     * @param array  $params   Request body as an associative array (sent as JSON)
-     * @return mixed Decoded response data on success
+     * @param  string $endpoint API endpoint path (appended to `$baseUrl . $path`)
+     * @param  array  $params   Request body as an associative array (sent as JSON)
+     * @return mixed  Decoded response data on success
      * @throws \Exception If the request fails or the API returns a non-2xx status
      */
     public function post(string $endpoint, array $params): mixed {
@@ -179,12 +255,14 @@ class Api3rdBase {
     }
 
     /**
-     * Send a POST request with a form-encoded body (multipart/form-data) to the API.
-     * Use this instead of `post()` when uploading files or sending form fields.
+     * Send a POST request with a form-encoded body to the API.
      *
-     * @param string $endpoint The API endpoint path (appended to `$baseUrl . $path`)
-     * @param array  $params   Request body as an associative array (sent as form data)
-     * @return mixed Decoded response data on success
+     * Use instead of {@see post()} when uploading files or sending form fields
+     * (multipart/form-data).
+     *
+     * @param  string $endpoint API endpoint path (appended to `$baseUrl . $path`)
+     * @param  array  $params   Request body as an associative array (sent as form data)
+     * @return mixed  Decoded response data on success
      * @throws \Exception If the request fails or the API returns a non-2xx status
      */
     public function postForm(string $endpoint, array $params): mixed {
@@ -222,11 +300,12 @@ class Api3rdBase {
 
     /**
      * Send a GET request to the API.
-     * Query parameters are automatically appended to the URL.
      *
-     * @param string $endpoint The API endpoint path (appended to `$baseUrl . $path`)
-     * @param array  $params   Query parameters as an associative array
-     * @return mixed Decoded response data on success
+     * Query parameters are appended to the URL automatically.
+     *
+     * @param  string $endpoint API endpoint path (appended to `$baseUrl . $path`)
+     * @param  array  $params   Query parameters as an associative array
+     * @return mixed  Decoded response data on success
      * @throws \Exception If the request fails or the API returns a non-2xx status
      */
     public function get(string $endpoint, array $params = []): mixed {
@@ -272,21 +351,33 @@ class Api3rdBase {
         }
     }
 
-    /** @return array The headers sent in the last request */
+    /**
+     * Return the HTTP headers sent in the last request.
+     *
+     * @return array
+     */
     public function getHeaderReq(): array { return $this->_headers; }
 
-    /** @return array The request body/params sent in the last request */
+    /**
+     * Return the request body or query params sent in the last request.
+     *
+     * @return array
+     */
     public function getRequest(): array { return $this->_request; }
 
-    /** @return mixed The decoded response data from the last request */
+    /**
+     * Return the decoded response data from the last request.
+     *
+     * @return mixed
+     */
     public function getResponse(): mixed { return $this->_response; }
 
     /**
      * Insert a log entry into `api_3rd_log` before sending the request.
      *
-     * @param int|string $reff_id  The ID of the entity associated with this request (e.g. user or order ID)
-     * @param string     $method   HTTP method name in lowercase (e.g. 'get', 'post')
-     * @return int|string The inserted log row ID
+     * @param  int|string $reff_id ID of the entity associated with the request (e.g. user or order ID)
+     * @param  string     $method  HTTP method in lowercase (e.g. 'get', 'post')
+     * @return int|string Inserted log row ID
      */
     public function addLog(int|string $reff_id, string $method): int|string {
         Yii::$app->db->createCommand()->insert('api_3rd_log', [
@@ -305,9 +396,10 @@ class Api3rdBase {
     /**
      * Update the log entry with the exception message when a request fails.
      *
-     * @param int|string $log_id  The log row ID returned by `addLog()`
-     * @param string     $message The exception message
-     * @param float|null $latency Request duration in seconds, or null if unavailable
+     * @param  int|string $log_id  Log row ID returned by {@see addLog()}
+     * @param  string     $message Exception message
+     * @param  float|null $latency Request duration in seconds
+     * @return void
      */
     public function addException(int|string $log_id, string $message, ?float $latency = null): void {
         Yii::$app->db->createCommand('UPDATE api_3rd_log SET response_log = :RESP, latency = :L WHERE id = :ID', [
@@ -320,9 +412,10 @@ class Api3rdBase {
     /**
      * Update the log entry with the API response data after a successful request.
      *
-     * @param int|string $log_id   The log row ID returned by `addLog()`
-     * @param mixed      $response The decoded response body
-     * @param float|null $latency  Request duration in seconds, or null if unavailable
+     * @param  int|string $log_id   Log row ID returned by {@see addLog()}
+     * @param  mixed      $response Decoded response body
+     * @param  float|null $latency  Request duration in seconds
+     * @return void
      */
     public function addResponse(int|string $log_id, mixed $response, ?float $latency = null): void {
         Yii::$app->db->createCommand('UPDATE api_3rd_log SET response_log = :RESP, latency = :L WHERE id = :ID', [

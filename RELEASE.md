@@ -1,5 +1,20 @@
 # Release Notes
 
+## v1.1.2 — 2026-06-23
+
+### Added
+- `Api3rdBase` — tambah method `put()` untuk HTTP PUT request (full resource replacement)
+
+### Changed
+- Semua file PHP diupdate komentar mengikuti standar PHPDoc:
+  - Class docblock dengan `@package` dan `@author` di semua class/trait
+  - Property docblock dengan `@var type description` di semua property
+  - Method docblock lengkap dengan `@param`, `@return`, `@throws`, dan `{@see}` cross-reference
+  - Inline single-line docblock diexpand ke format multi-line yang proper
+  - Header comment `/* */` lama di `QueryHelper`, `LocalStorage`, `S3Storage` dikonversi ke class docblock `/** */`
+
+---
+
 ## v1.1.1 — 2026-06-23
 
 ### Changed

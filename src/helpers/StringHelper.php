@@ -1,18 +1,27 @@
 <?php
-
 namespace budimanlai\yii2pkg\helpers;
 
 use Yii;
 use yii\helpers\StringHelper as YiiStringHelper;
 
+/**
+ * String utility helper extending Yii2's built-in {@see YiiStringHelper}.
+ *
+ * Adds Indonesian phone number normalization, transaction ID generation,
+ * file deletion, random string generation, and SEO-friendly string conversion.
+ *
+ * @package budimanlai\yii2pkg\helpers
+ * @author  Budiman Lai <budiman.lai@gmail.com>
+ */
 class StringHelper extends YiiStringHelper {
 
     /**
-     * Standardize a phone number to the Indonesian format with prefix `62`.
+     * Normalize a phone number to the Indonesian format with prefix `62`.
+     *
      * Strips spaces, dashes, and plus signs before normalizing the prefix.
      *
-     * @param string $number The raw phone number to normalize
-     * @return string The normalized phone number with prefix `62`
+     * @param  string $number Raw phone number to normalize
+     * @return string Normalized phone number with prefix `62`
      */
     public static function normalizePhoneNumber(string $number): string {
         $number = str_replace([' ', '-', '+'], '', $number);
@@ -30,9 +39,10 @@ class StringHelper extends YiiStringHelper {
 
     /**
      * Generate a unique transaction ID based on the current timestamp.
-     * Format: `yymmddHHiiss` + last 4 digits of unix timestamp.
      *
-     * @return string The generated transaction ID (16 characters)
+     * Format: `yymmddHHiiss` + last 4 digits of the unix timestamp (16 characters total).
+     *
+     * @return string Generated transaction ID
      */
     public static function generateTrxID(): string {
         $t = (string) time();
@@ -40,10 +50,9 @@ class StringHelper extends YiiStringHelper {
     }
 
     /**
-     * Collect and concatenate all first error messages from a Yii2 model
-     * into a single comma-separated string.
+     * Collect and concatenate all first validation error messages from a Yii2 model.
      *
-     * @param \yii\base\Model $model The model whose errors will be extracted
+     * @param  \yii\base\Model $model Model whose errors will be extracted
      * @return string Comma-separated error messages
      */
     public static function getErrorModel(\yii\base\Model $model): string {
@@ -57,10 +66,12 @@ class StringHelper extends YiiStringHelper {
 
     /**
      * Delete a file from the server if it exists.
+     *
      * The base upload directory is read from `Yii::$app->params['uploads']['upload_dir']`.
      * Does nothing if `$file` is empty or the file does not exist.
      *
-     * @param string $file Relative file path within the upload directory
+     * @param  string $file Relative file path within the upload directory
+     * @return void
      */
     public static function deleteFile(string $file): void {
         if (!empty($file)) {
@@ -76,8 +87,8 @@ class StringHelper extends YiiStringHelper {
     /**
      * Generate a cryptographically secure random alphanumeric string.
      *
-     * @param int $length The desired length of the random string (default: 10)
-     * @return string The generated random string
+     * @param  int    $length Desired length of the random string (default: 10)
+     * @return string Generated random string
      */
     public static function generateRandomString(int $length = 10): string {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -90,21 +101,23 @@ class StringHelper extends YiiStringHelper {
     }
 
     /**
-     * Normalize string by removing all non-alphanumeric characters and spaces.
+     * Normalize a string by removing all non-alphanumeric characters and spaces.
      *
-     * @param string $string The string to normalize
-     * @return string The normalized string containing only A-Z, a-z, and 0-9
+     * @param  string $string String to normalize
+     * @return string Normalized string containing only A–Z, a–z, and 0–9
      */
     public static function normalizeString(string $string): string {
         return (string) preg_replace('/[^A-Za-z0-9]/', '', $string);
     }
 
     /**
-     * Convert a string to SEO-friendly format by lowercasing and removing
-     * all non-alphanumeric characters (symbols, spaces, dashes, etc.).
+     * Convert a string to an SEO-friendly format.
      *
-     * @param string $string The string to convert
-     * @return string The SEO-friendly string, or empty string if input is empty
+     * Lowercases the input and removes all non-alphanumeric characters
+     * (symbols, spaces, dashes, etc.).
+     *
+     * @param  string $string String to convert
+     * @return string SEO-friendly string, or empty string if input is empty
      */
     public static function seoString(string $string): string {
         if (!empty($string)) {
