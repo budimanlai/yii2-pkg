@@ -23,10 +23,6 @@ Driver storage untuk menyimpan file ke AWS S3 atau object storage yang kompatibe
         'bucket'     => 'my-bucket',
         'expired'    => '+1 hours',
 
-        // Opsional: ganti internal endpoint dengan URL publik di response
-        'public_endpoint_url' => 'http://minio:9000',
-        'public_url'          => 'https://cdn.example.com',
-
         // Opsional: selalu gunakan pre-signed URL (untuk provider yang tidak mengizinkan public URL)
         'always_private' => false,
     ],
@@ -45,8 +41,6 @@ Driver storage untuk menyimpan file ke AWS S3 atau object storage yang kompatibe
 | `$use_path_style_endpoint` | `bool` | `true` | Gunakan path-style URL (wajib untuk MinIO) |
 | `$debug` | `bool` | `false` | Aktifkan debug mode pada S3Client |
 | `$bucket` | `string` | — | Nama bucket S3 |
-| `$public_endpoint_url` | `?string` | `null` | Internal endpoint yang akan diganti di public URL |
-| `$public_url` | `?string` | `null` | URL publik pengganti `$public_endpoint_url` |
 | `$expired` | `string` | `'+1 minutes'` | Durasi berlakunya pre-signed URL (format `strtotime`) |
 | `$always_private` | `bool` | `false` | Selalu gunakan pre-signed URL. Bila aktif, `getPublicURL()` mengembalikan pre-signed URL dan `upload()` selalu memakai ACL `'private'` |
 
@@ -90,7 +84,7 @@ $storage->upload('/tmp/doc.pdf', 'documents/contract.pdf', 'private');
 public function getPublicURL(string $file, string $defaultFile = ''): string
 ```
 
-Mendapatkan URL publik dari sebuah object S3. Jika `$public_endpoint_url` dan `$public_url` dikonfigurasi, internal endpoint di URL akan diganti secara otomatis.
+Mendapatkan URL publik dari sebuah object S3.
 
 Bila `$always_private` aktif, method ini mengembalikan pre-signed URL dari [`getPrivateURL()`](#getprivateurl) yang berlaku selama durasi `$expired`.
 
@@ -107,7 +101,7 @@ Bila `$always_private` aktif, method ini mengembalikan pre-signed URL dari [`get
 
 ```php
 $url = $storage->getPublicURL('avatars/user-1.jpg');
-// → 'https://cdn.example.com/my-bucket/avatars/user-1.jpg'
+// → 'https://s3.ap-southeast-1.amazonaws.com/my-bucket/avatars/user-1.jpg'
 
 $url = $storage->getPublicURL('', '/images/default-avatar.png');
 // → '/images/default-avatar.png'

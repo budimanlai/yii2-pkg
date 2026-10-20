@@ -34,12 +34,6 @@ class S3Storage extends Component {
     /** @var string Target S3 bucket name */
     public string $bucket;
 
-    /** @var string|null Public endpoint base URL; used to rewrite internal URLs for public access */
-    public ?string $public_endpoint_url = null;
-
-    /** @var string|null Public-facing base URL that replaces `$public_endpoint_url` in public URLs */
-    public ?string $public_url = null;
-
     /**
      * @var string Expiration duration for pre-signed URLs.
      *             Accepts any string compatible with {@link https://www.php.net/strtotime strtotime()}
@@ -108,9 +102,6 @@ class S3Storage extends Component {
     /**
      * Return the public URL of an S3 object.
      *
-     * If both `$public_endpoint_url` and `$public_url` are set, the internal
-     * endpoint in the URL is replaced with the public URL.
-     *
      * If `$always_private` is enabled, returns a pre-signed URL from {@see getPrivateURL()}.
      *
      * @param  string $file        Object key (path) in the S3 bucket
@@ -127,11 +118,7 @@ class S3Storage extends Component {
         }
 
         try {
-            $url = $this->s3Client->getObjectUrl($this->bucket, $file);
-            if ($this->public_endpoint_url !== null && $this->public_url !== null) {
-                $url = str_replace($this->public_endpoint_url, $this->public_url, $url);
-            }
-            return $url;
+            return $this->s3Client->getObjectUrl($this->bucket, $file);
         } catch (\Exception) {
             return $defaultFile;
         }

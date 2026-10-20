@@ -8,10 +8,10 @@
   - `upload()` selalu memakai ACL `'private'`, mengabaikan parameter `$acl`
 
 ### Removed
-- `S3Storage` — hapus property `$private_endpoint_url` dan `$private_url` (**breaking change**)
-  - `getPrivateURL()` sekarang mengembalikan pre-signed URL apa adanya tanpa penggantian endpoint
+- `S3Storage` — hapus property `$public_endpoint_url`, `$public_url`, `$private_endpoint_url`, dan `$private_url` (**breaking change**)
+  - `getPublicURL()` dan `getPrivateURL()` sekarang mengembalikan URL apa adanya tanpa penggantian endpoint
 
-> **Migration:** Hapus `private_endpoint_url` dan `private_url` dari konfigurasi komponen `storage`. Bila masih ada, Yii2 akan melempar `UnknownPropertyException`.
+> **Migration:** Hapus `public_endpoint_url`, `public_url`, `private_endpoint_url`, dan `private_url` dari konfigurasi komponen `storage`. Bila masih ada, Yii2 akan melempar `UnknownPropertyException`.
 
 ---
 
