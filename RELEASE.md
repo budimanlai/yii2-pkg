@@ -1,5 +1,20 @@
 # Release Notes
 
+## v1.1.3 — 2026-10-20
+
+### Added
+- `S3Storage` — tambah property `$always_private` (default `false`) untuk provider S3 yang tidak mengizinkan public URL
+  - `getPublicURL()` mengembalikan pre-signed URL dari `getPrivateURL()` (masa berlaku mengikuti `$expired`)
+  - `upload()` selalu memakai ACL `'private'`, mengabaikan parameter `$acl`
+
+### Removed
+- `S3Storage` — hapus property `$private_endpoint_url` dan `$private_url` (**breaking change**)
+  - `getPrivateURL()` sekarang mengembalikan pre-signed URL apa adanya tanpa penggantian endpoint
+
+> **Migration:** Hapus `private_endpoint_url` dan `private_url` dari konfigurasi komponen `storage`. Bila masih ada, Yii2 akan melempar `UnknownPropertyException`.
+
+---
+
 ## v1.1.2 — 2026-06-23
 
 ### Added

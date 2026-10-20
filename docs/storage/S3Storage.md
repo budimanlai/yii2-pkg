@@ -27,9 +27,8 @@ Driver storage untuk menyimpan file ke AWS S3 atau object storage yang kompatibe
         'public_endpoint_url' => 'http://minio:9000',
         'public_url'          => 'https://cdn.example.com',
 
-        // Opsional: ganti endpoint di pre-signed URL dengan URL yang bisa diakses client
-        'private_endpoint_url' => 'http://minio:9000',
-        'private_url'          => 'https://private.example.com',
+        // Opsional: selalu gunakan pre-signed URL (untuk provider yang tidak mengizinkan public URL)
+        'always_private' => false,
     ],
 ],
 ```
@@ -48,9 +47,8 @@ Driver storage untuk menyimpan file ke AWS S3 atau object storage yang kompatibe
 | `$bucket` | `string` | — | Nama bucket S3 |
 | `$public_endpoint_url` | `?string` | `null` | Internal endpoint yang akan diganti di public URL |
 | `$public_url` | `?string` | `null` | URL publik pengganti `$public_endpoint_url` |
-| `$private_endpoint_url` | `?string` | `null` | Internal endpoint yang akan diganti di pre-signed URL |
-| `$private_url` | `?string` | `null` | URL pengganti `$private_endpoint_url` pada pre-signed URL |
 | `$expired` | `string` | `'+1 minutes'` | Durasi berlakunya pre-signed URL (format `strtotime`) |
+| `$always_private` | `bool` | `false` | Selalu gunakan pre-signed URL. Bila aktif, `getPublicURL()` mengembalikan pre-signed URL dan `upload()` selalu memakai ACL `'private'` |
 
 ---
 
@@ -70,7 +68,7 @@ Mengupload file ke S3 bucket menggunakan `putObject`.
 |---|---|---|---|
 | `$source` | `string` | — | Absolute path file sumber di local disk |
 | `$destination` | `string` | — | Object key (path) di S3 bucket |
-| `$acl` | `string` | `'public-read'` | ACL S3 untuk object yang diupload |
+| `$acl` | `string` | `'public-read'` | ACL S3 untuk object yang diupload. Diabaikan dan selalu `'private'` bila `$always_private` aktif |
 
 **Throws:** `\Exception` jika upload gagal.
 
@@ -94,6 +92,8 @@ public function getPublicURL(string $file, string $defaultFile = ''): string
 
 Mendapatkan URL publik dari sebuah object S3. Jika `$public_endpoint_url` dan `$public_url` dikonfigurasi, internal endpoint di URL akan diganti secara otomatis.
 
+Bila `$always_private` aktif, method ini mengembalikan pre-signed URL dari [`getPrivateURL()`](#getprivateurl) yang berlaku selama durasi `$expired`.
+
 **Parameter**
 
 | Nama | Tipe | Default | Deskripsi |
@@ -111,6 +111,10 @@ $url = $storage->getPublicURL('avatars/user-1.jpg');
 
 $url = $storage->getPublicURL('', '/images/default-avatar.png');
 // → '/images/default-avatar.png'
+
+// Dengan 'always_private' => true
+$url = $storage->getPublicURL('avatars/user-1.jpg');
+// → 'https://s3.ap-southeast-1.amazonaws.com/my-bucket/avatars/user-1.jpg?X-Amz-Signature=...'
 ```
 
 ---
@@ -136,7 +140,7 @@ Menghasilkan pre-signed URL untuk mengakses object S3 secara sementara (private)
 
 ```php
 $url = $storage->getPrivateURL('documents/contract.pdf');
-// → 'https://private.example.com/my-bucket/documents/contract.pdf?X-Amz-Signature=...'
+// → 'https://s3.ap-southeast-1.amazonaws.com/my-bucket/documents/contract.pdf?X-Amz-Signature=...'
 ```
 
 ---

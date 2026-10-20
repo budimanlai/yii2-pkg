@@ -40,18 +40,18 @@ class S3Storage extends Component {
     /** @var string|null Public-facing base URL that replaces `$public_endpoint_url` in public URLs */
     public ?string $public_url = null;
 
-    /** @var string|null Private endpoint base URL; used to rewrite internal URLs for private access */
-    public ?string $private_endpoint_url = null;
-
-    /** @var string|null Private-facing base URL that replaces `$private_endpoint_url` in pre-signed URLs */
-    public ?string $private_url = null;
-
     /**
      * @var string Expiration duration for pre-signed URLs.
      *             Accepts any string compatible with {@link https://www.php.net/strtotime strtotime()}
      *             (e.g. `'+1 minutes'`, `'+1 hours'`).
      */
     public string $expired = '+1 minutes';
+
+    /**
+     * @var bool Always use pre-signed URLs. For S3 providers that do not allow public URLs:
+     *           {@see getPublicURL()} returns a pre-signed URL and {@see upload()} uses the 'private' ACL.
+     */
+    public bool $always_private = false;
 
     /** @var S3Client Initialized AWS S3 client */
     private S3Client $s3Client;
@@ -84,11 +84,15 @@ class S3Storage extends Component {
      *
      * @param  string $source      Absolute path to the source file on local disk
      * @param  string $destination Object key (path) in the S3 bucket
-     * @param  string $acl         S3 ACL for the object (default: 'public-read')
+     * @param  string $acl         S3 ACL for the object (default: 'public-read'; always 'private' when `$always_private` is enabled)
      * @return void
      * @throws \Exception If the upload fails
      */
     public function upload(string $source, string $destination, string $acl = 'public-read'): void {
+        if ($this->always_private) {
+            $acl = 'private';
+        }
+
         try {
             $this->s3Client->putObject([
                 'Bucket' => $this->bucket,
@@ -107,11 +111,17 @@ class S3Storage extends Component {
      * If both `$public_endpoint_url` and `$public_url` are set, the internal
      * endpoint in the URL is replaced with the public URL.
      *
+     * If `$always_private` is enabled, returns a pre-signed URL from {@see getPrivateURL()}.
+     *
      * @param  string $file        Object key (path) in the S3 bucket
      * @param  string $defaultFile Fallback value returned when `$file` is empty or an error occurs
      * @return string Public URL, or `$defaultFile` on failure
      */
     public function getPublicURL(string $file, string $defaultFile = ''): string {
+        if ($this->always_private) {
+            return $this->getPrivateURL($file, $defaultFile);
+        }
+
         if (empty($file)) {
             return $defaultFile;
         }
@@ -130,9 +140,7 @@ class S3Storage extends Component {
     /**
      * Return a pre-signed (private) URL for an S3 object.
      *
-     * The URL expires after the duration defined by `$expired`. If both
-     * `$private_endpoint_url` and `$private_url` are set, the internal endpoint
-     * in the URL is replaced with the private URL.
+     * The URL expires after the duration defined by `$expired`.
      *
      * @param  string $file        Object key (path) in the S3 bucket
      * @param  string $defaultFile Fallback value returned when `$file` is empty or an error occurs
@@ -149,13 +157,7 @@ class S3Storage extends Component {
                 'Key' => $file,
             ]);
             $request = $this->s3Client->createPresignedRequest($cmd, $this->expired);
-            $presignUrl = (string) $request->getUri();
-
-            if ($this->private_endpoint_url !== null && $this->private_url !== null) {
-                $presignUrl = str_replace($this->private_endpoint_url, $this->private_url, $presignUrl);
-            }
-
-            return $presignUrl;
+            return (string) $request->getUri();
         } catch (\Exception) {
             return $defaultFile;
         }
