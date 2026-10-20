@@ -39,6 +39,7 @@ Driver storage untuk menyimpan file ke AWS S3 atau object storage yang kompatibe
 | `$endpoint` | `string` | — | URL endpoint S3 |
 | `$region` | `string` | — | Region S3 (contoh: `'ap-southeast-1'`) |
 | `$use_path_style_endpoint` | `bool` | `true` | Gunakan path-style URL (wajib untuk MinIO) |
+| `$verify_ssl` | `bool` | `true` | Verifikasi sertifikat TLS endpoint (matikan hanya untuk sertifikat self-signed di development) |
 | `$debug` | `bool` | `false` | Aktifkan debug mode pada S3Client |
 | `$bucket` | `string` | — | Nama bucket S3 |
 | `$expired` | `string` | `'+1 minutes'` | Durasi berlakunya pre-signed URL (format `strtotime`) |

@@ -1,17 +1,24 @@
 # Release Notes
 
-## v1.1.3 — 2026-10-20
+## v1.2.0 — 2026-10-20
 
 ### Added
 - `S3Storage` — tambah property `$always_private` (default `false`) untuk provider S3 yang tidak mengizinkan public URL
   - `getPublicURL()` mengembalikan pre-signed URL dari `getPrivateURL()` (masa berlaku mengikuti `$expired`)
   - `upload()` selalu memakai ACL `'private'`, mengabaikan parameter `$acl`
+- `S3Storage` — tambah property `$verify_ssl` (default `true`) untuk mengatur verifikasi sertifikat TLS endpoint
+
+### Fixed
+- `S3Storage` — property `$use_path_style_endpoint` sebelumnya diabaikan (selalu `true`); sekarang diteruskan ke `S3Client`
+
+### Changed
+- `S3Storage` — verifikasi sertifikat TLS sekarang aktif secara default (sebelumnya selalu dimatikan) (**breaking change** untuk endpoint dengan sertifikat self-signed)
 
 ### Removed
 - `S3Storage` — hapus property `$public_endpoint_url`, `$public_url`, `$private_endpoint_url`, dan `$private_url` (**breaking change**)
   - `getPublicURL()` dan `getPrivateURL()` sekarang mengembalikan URL apa adanya tanpa penggantian endpoint
 
-> **Migration:** Hapus `public_endpoint_url`, `public_url`, `private_endpoint_url`, dan `private_url` dari konfigurasi komponen `storage`. Bila masih ada, Yii2 akan melempar `UnknownPropertyException`.
+> **Migration:** Hapus `public_endpoint_url`, `public_url`, `private_endpoint_url`, dan `private_url` dari konfigurasi komponen `storage`. Bila masih ada, Yii2 akan melempar `UnknownPropertyException`. Untuk endpoint dengan sertifikat self-signed (misalnya MinIO lokal), tambahkan `'verify_ssl' => false`.
 
 ---
 

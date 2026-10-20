@@ -28,6 +28,9 @@ class S3Storage extends Component {
     /** @var bool Whether to use path-style endpoint instead of virtual-hosted-style */
     public bool $use_path_style_endpoint = true;
 
+    /** @var bool Verify the endpoint's TLS certificate (disable only for self-signed certificates in development) */
+    public bool $verify_ssl = true;
+
     /** @var bool Enable AWS SDK debug output */
     public bool $debug = false;
 
@@ -62,12 +65,12 @@ class S3Storage extends Component {
             'version' => 'latest',
             'region'  => $this->region,
             'endpoint' => $this->endpoint,
-            'use_path_style_endpoint' => true,
+            'use_path_style_endpoint' => $this->use_path_style_endpoint,
             'credentials' => [
                 'key'    => $this->credentials['key'],
                 'secret' => $this->credentials['secret'],
             ],
-            'http' => ['verify' => false],
+            'http' => ['verify' => $this->verify_ssl],
             'use_aws_shared_config_files' => false,
             'debug' => $this->debug,
         ]);
